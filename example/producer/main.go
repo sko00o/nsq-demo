@@ -17,6 +17,8 @@ var (
 )
 
 func main() {
+	flag.Parse()
+	
 	cfg := nsq.NewConfig()
 	producer, err := nsq.NewProducer(*addr, cfg)
 	if err != nil {
