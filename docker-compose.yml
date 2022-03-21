@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+
+  consumer:
+    build:
+      context: .
+    entrypoint: consumer
+    command: >
+      -tpc not_exist1,hello
+      -ch ch1
+      -addr nsqlookupd:4161
+    depends_on:
+      - nsqlookupd
+
+  producer:
+    build:
+      context: .
+    entrypoint: producer
+    command: >
+      -tpc hello
+      -addr nsqd:4150
+    depends_on:
+      - nsqd
+
+  nsqlookupd:
+    image: nsqio/nsq
+    restart: always
+    command: /nsqlookupd
+    ports:
+      - 4160
+      - 4161
+
+  nsqd:
+    image: nsqio/nsq
+    restart: always
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    depends_on:
+      - nsqlookupd
+    ports:
+      - 4150
+      - 4151
