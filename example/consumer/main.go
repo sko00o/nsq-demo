@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	topices = flag.String("tpc", "test_topic", "topices for consume")
-	channel = flag.String("ch", "test_chan", "channel name for consume")
-	addrs   = flag.String("addr", "localhost:4161", "nsqlookupd cluster http host:port")
+	topices  = flag.String("tpc", "test_topic", "topices for consume")
+	channel  = flag.String("ch", "test_chan", "channel name for consume")
+	addrs    = flag.String("addr", "localhost:4161", "nsqlookupd cluster http host:port")
+	addrType = flag.String("type", "nsqlookupd", "nsqlookupd|nsqd")
 )
 
 func main() {
@@ -36,8 +37,15 @@ func main() {
 			logrus.Printf("receive: %s", m.Body)
 			return nil
 		}), 100)
-		if err := consumer.ConnectToNSQLookupds(strings.Split(*addrs, ",")); err != nil {
-			panic(err)
+
+		if *addrType == "nsqd" {
+			if err := consumer.ConnectToNSQDs(strings.Split(*addrs, ",")); err != nil {
+				panic(err)
+			}
+		} else {
+			if err := consumer.ConnectToNSQLookupds(strings.Split(*addrs, ",")); err != nil {
+				panic(err)
+			}
 		}
 	}
 
